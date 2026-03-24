@@ -3,13 +3,15 @@ import sys
 
 def main():
     lines = sys.stdin.read().splitlines()
-
     nbr_words, nbr_queries = lines[0].split()
 
-    graph = read_lines_into_graph(nbr_words, lines)
+    words = lines[1:int(nbr_words) + 1]
+    queries = lines[-int(nbr_queries):]
 
-    for line in lines[int(nbr_words) + 1:]:
-        source, goal = line.split()
+    graph = read_words_into_graph(words)
+
+    for query in queries:
+        source, goal = query.split()
         print(bfs(graph, source, goal))
 
 
@@ -47,10 +49,10 @@ def contains_all_letters(word1, word2):
     return True
 
 
-def read_lines_into_graph(nbr_words, words):
+def read_words_into_graph(words):
     nodes = []
-    for i in range(1, int(nbr_words) + 1):
-        nodes.append(words[i])
+    for word in words:
+        nodes.append(word)
 
     graph = {}
     for i, node in enumerate(nodes):
@@ -62,6 +64,7 @@ def read_lines_into_graph(nbr_words, words):
 
             if(contains_all_letters(node[-4:], to)):
                 graph[node].append(to)
+
     return graph
 
 
