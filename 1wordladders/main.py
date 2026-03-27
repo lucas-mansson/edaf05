@@ -1,3 +1,4 @@
+from collections import deque
 import sys
 
 
@@ -19,12 +20,15 @@ def bfs(graph, source, goal):
     if source == goal:
         return 0
 
+    if source not in graph:
+        return "Impossible"
+
     visited = [source]
     distances = { source: 0 }
 
-    queue = [source]
+    queue = deque([source])
     while len(queue) > 0:
-        curr = queue.pop(0)
+        curr = queue.popleft()
         if curr == goal:
             return distances[curr]
 
@@ -66,6 +70,5 @@ def read_words_into_graph(words):
                 graph[node].append(to)
 
     return graph
-
 
 main()
