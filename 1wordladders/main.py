@@ -23,7 +23,7 @@ def bfs(graph, source, goal):
     if source not in graph:
         return "Impossible"
 
-    visited = [source]
+    visited = { source }
     distances = { source: 0 }
 
     queue = deque([source])
@@ -34,7 +34,7 @@ def bfs(graph, source, goal):
 
         for neighbor in graph[curr]:
             if neighbor not in visited:
-                visited.append(neighbor)
+                visited.add(neighbor)
                 queue.append(neighbor)
                 distances[neighbor] = distances[curr] + 1
 
