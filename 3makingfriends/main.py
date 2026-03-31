@@ -4,7 +4,7 @@ from typing import TextIO, Tuple
 
 def main():
     #input = sys.stdin
-    input = open("data/secret/3large.in")
+    input = open("data/secret/4huge.in")
 
     graph = make_graph(input)
     res = jarnik(graph, "1")
@@ -65,23 +65,25 @@ def jarnik(graph: Graph, root: str):
 
     queue = [] # We could add neighbors here but that would require updating distances
     for neighbor, weight in graph.get(root):
-        heapq.heappush(queue, (weight, root, neighbor)) # sorts by weight O(log n) time complexity
+        heapq.heappush(queue, (weight, neighbor)) # sorts by weight O(log n) time complexity
 
     # while Q != empty 
     while len(queue) > 0:
         # select a v which minimizes w(u, v) where u not in Q, v in Q 
         # remove v from Q
-        weight, _, v = heapq.heappop(queue) # select v with smallest weight
+        weight, v = heapq.heappop(queue) # select v with smallest weight
 
         if v not in visited:
             visited.add(v)
             # add (u, v) to T
             mst.append(weight)
-            # add neighbors 
-            for neighbor, weight in graph.get(v): 
+            # add neighbors
+            for neighbor, weight in graph.get(v): # instead of updating keys, we just add the new edges so we dont need to update
                 if neighbor not in visited:
-                    heapq.heappush(queue, (weight, root, neighbor))
+                    heapq.heappush(queue, (weight, neighbor))
+
     return mst
+
 # we use a PriorityQueue for Q with d(v), the distance to node V - Q, as keys
 
 # Kruskals algorithm

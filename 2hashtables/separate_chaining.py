@@ -26,7 +26,7 @@ class SeparateChainingHashTable:
     # Updates the value for key or adds if it doesnt exist
     def set(self, key, value):
         # Check that a is not too big
-        if self.count / self.size > 0.75:
+        if self.count / self.size >= 0.75:
             self._resize(self.size*2)
 
         i, j = self._get_indices(key)

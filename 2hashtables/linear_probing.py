@@ -10,7 +10,7 @@ class LinearProbingHashTable:
 
     def __init__(self) -> None:
         self.table: list[tuple | None] = [None] * 8
-        self.size = 2 # m, length of array
+        self.size = 8 # m, length of array
         self.count = 0 # n, nbr of non-null elements
 
         return
@@ -27,7 +27,7 @@ class LinearProbingHashTable:
         return None
 
     def set(self, key, value):
-        if self.count / self.size >= 0.49:
+        if self.count / self.size >= 0.5:
             self._resize(self.size*2)
 
         i = self._hash(key)
