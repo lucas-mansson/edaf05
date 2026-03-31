@@ -59,18 +59,10 @@ class SeparateChainingHashTable:
         return True
 
     def keys(self):
-        res = []
-        for l in self.table:
-            for (k, _) in l:
-                res.append(k)
-        return sorted(res)
+        return [k for l in self.table for (k, _) in l]
 
     def values(self): 
-        res = []
-        for l in self.table:
-            for (_, v) in l:
-                res.append(v)
-        return sorted(res)
+        return [v for l in self.table for (_, v) in l]
 
     # Helper function that returns indices (i, j), 
     # where i is the "array" index and j is the "List" index
