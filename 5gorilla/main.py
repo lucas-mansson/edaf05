@@ -12,7 +12,7 @@ def main():
 
     for query in queries:
         word1, word2 = solve(chars, costs, query, delta=-4)
-        print(word1[::-1], word2[::-1])
+        print(word1, word2)
 
     return
 
@@ -46,38 +46,40 @@ def solve(chars, costs, query, delta):
                 a[i][j] = max(opt1, opt2, opt3)
 
     i, j = word1_len, word2_len
-    res1, res2 = "", ""
+    res1, res2 = [], []
 
     # We walk backward to find the optimal path
     while i > 0 or j > 0:
         current = a[i][j]
+        char1 = word1[i-1]
+        char2 = word2[j-1]
 
         # Check if we walked diagonally to get here
         if i > 0 and j > 0:
-            char1 = word1[i-1]
-            char2 = word2[j-1]
             cost = costs[chars[char1]][chars[char2]]
 
             if current == cost + a[i-1][j-1]:
-                res1 += char1
-                res2 += char2
+                res1.append(char1)
+                res2.append(char2)
                 j -= 1
                 i -= 1
                 continue
 
+        # did we walk "up"?
         if i > 0 and current == delta + a[i-1][j]:
-            res1 += word1[i-1] 
-            res2 += "*" 
+            res1.append(char1)
+            res2.append("*")
             i -= 1
             continue
 
+        # did we walk "right"?
         if j > 0 and current == delta + a[i][j-1]:
-            res1 += "*" 
-            res2 += word2[j-1] 
+            res1.append("*")
+            res2.append(char2)
             j -= 1
             continue
 
-    return res1, res2
+    return "".join(res1)[::-1], "".join(res2)[::-1]
 
 
 def parse(input_file: TextIO):
