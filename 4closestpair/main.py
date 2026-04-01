@@ -15,16 +15,6 @@ class Point:
         return f"({self.x}, {self.y})"
 
 
-def main():
-    input = sys.stdin
-    #input = open("data/secret/4large2.in")
-    plane = make_plane(input) 
-
-    res = closest_points(plane)
-    print(f"{res:.6f}")
-    return
-
-
 def closest_points(plane: list[Point]):
     px, py = sorted(plane, key=lambda p: p.x), sorted(plane, key=lambda p: p.y)
     return closest(px, py, len(px))
@@ -83,6 +73,16 @@ def make_plane(input: TextIO):
         plane.append(Point(int(x), int(y)))
 
     return plane 
+
+
+def main():
+    input = sys.stdin
+    #input = open("data/secret/4large2.in")
+    plane = make_plane(input) 
+
+    res = closest_points(plane)
+    print(f"{res:.6f}")
+    return
 
 
 main()
