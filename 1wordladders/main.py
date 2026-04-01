@@ -17,11 +17,6 @@ def main():
 
 
 def bfs(graph, source, goal):
-    if source == goal:
-        return 0
-
-    if source not in graph:
-        return "Impossible"
 
     visited = { source }
     distances = { source: 0 }
@@ -34,9 +29,9 @@ def bfs(graph, source, goal):
 
         for neighbor in graph[curr]:
             if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(neighbor)
                 distances[neighbor] = distances[curr] + 1
+                queue.append(neighbor)
+                visited.add(neighbor)
 
     return "Impossible"
 
@@ -54,15 +49,11 @@ def contains_all_letters(word1, word2):
 
 
 def read_words_into_graph(words):
-    nodes = []
-    for word in words:
-        nodes.append(word)
-
     graph = {}
-    for i, node in enumerate(nodes):
+    for i, node in enumerate(words):
         graph[node] = []
 
-        for j, to in enumerate(nodes):
+        for j, to in enumerate(words):
             if i == j:
                 continue
 
@@ -70,5 +61,6 @@ def read_words_into_graph(words):
                 graph[node].append(to)
 
     return graph
+
 
 main()
