@@ -68,7 +68,7 @@ def closest(px: list[Point], py: list[Point], n: int) -> float:
     # than the shortest distance found so far"
     min_s_dist = delta
     for i, p in enumerate(s):
-        for j in range(i+1, min(i+7, len(s))):
+        for j in range(i+1, min(i+6, len(s))):
             min_s_dist = min(p.distance_to(s[j]), min_s_dist)
 
     return min_s_dist
