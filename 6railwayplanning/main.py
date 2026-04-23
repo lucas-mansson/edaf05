@@ -82,7 +82,7 @@ class Graph:
 
 def main():
     input = sys.stdin
-    input = open("data/secret/2med.in")
+    #input = open("data/secret/2med.in")
     
     # Build the graph. 
     graph, min_capacity, edges_to_remove = parse(input)
