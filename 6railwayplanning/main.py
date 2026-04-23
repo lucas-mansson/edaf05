@@ -1,4 +1,5 @@
 import sys
+from collections import deque
 from typing import TextIO
 
 class Graph:
@@ -12,16 +13,34 @@ class Graph:
         self.graph[v][u] = { "capacity": 0, "flow": 0}
         return
 
-
-    def set_edge_capacity(self, u, v, capacity):
+    def set_edge_capacity(self, u, v, capacity: int):
         self.graph[u][v]["capacity"] = capacity
         self.graph[v][u]["capacity"] = capacity
         return
 
-    def set_edge_flow(self, u, v, flow):
-        self.graph[u][v]["flow"] = flow
+    def get_residual_capacity(self, u, v):
+        return self.graph[u][v]["capacity"] - self.graph[u][v]["flow"]
+
+    def capacity(self, u, v):
+        return self.graph[u][v]["capacity"]
+
+    def set_edge_flow(self, u, v, flow: int):
+        self.graph[u][v]["flow"] = flow 
         self.graph[v][u]["flow"] = flow
         return
+
+    def update_edge_flow(self, u, v, amount: int):
+        self.graph[u][v]["flow"] += amount 
+        self.graph[v][u]["flow"] -= amount
+        return
+
+    def flow(self, u, v):
+        return self.graph[u][v]["flow"]
+
+    def reset_flows(self):
+        for u in self.nodes():
+            for v in self.neighbors(u):
+                self.graph[u][v]["flow"] = 0
 
     def remove_edge(self, u, v):
         self.graph[u][v]["capacity"] = 0
@@ -39,12 +58,8 @@ class Graph:
 #        for neighbor, _ in self.graph[node]:
 #            filter(lambda n: n != node, self.graph[neighbor])
 #            #self.graph[neighbor] = {n: int(w) for n, w in self.graph[neighbor] if n != node}
-#
 #            del self.graph[node]
 #        return
-
-    def capacity(self, u, v):
-        return self.graph[u][v]["capacity"]
 
     def contains(self, u):
         return u in self.graph
@@ -53,7 +68,7 @@ class Graph:
         return self.graph[u]
 
     def nodes(self):
-        return self.graph.keys()
+        return [node for node, _ in self.graph.items()]
 
     def nbr_nodes(self):
         return len(self.graph)
@@ -67,73 +82,97 @@ class Graph:
 
 def main():
     input = sys.stdin
-    input = open("data/secret/0mini.in")
+    input = open("data/secret/2med.in")
     
     # Build the graph. 
     graph, min_capacity, edges_to_remove = parse(input)
     
-    #Use Ford-Fulkerson/preflow-push to find the maximum flow. 
-    s = "0"
-    t = str(graph.nbr_nodes() - 1)
-    flow = preflow_push(graph, s, t)
+    #Use Ford-Fulkerson to find the maximum flow. 
+    source = "0"
+    sink = str(graph.nbr_nodes() - 1)
 
-    i = 0
-    while i < len(edges_to_remove):
+    flow = ford_fulkerson(graph, source, sink)
+
+    nbr_removed = 0
+    for u, v in edges_to_remove:
+        if graph.flow(u, v) == 0: # Removing edges with flow 0 makes no difference so we can skip it
+            nbr_removed += 1
+            continue
+
+        old_cap = graph.capacity(u, v)
+
         #Then, remove one route/edge by updating its capacity to 0.
-        graph.remove_edge(edges_to_remove[i][0], edges_to_remove[i][1])
+        graph.remove_edge(u, v)
+
         #Find maximum flow for that graph. 
-        new_flow = preflow_push(graph, s, t)
-        
+        graph.reset_flows()
+        new_flow = ford_fulkerson(graph, source, sink)
+
         # If it is less than C, then we return the previous
         if new_flow >= min_capacity:
             flow = new_flow
-            i += 1
+            nbr_removed += 1
         else: 
+            graph.set_edge_capacity(u, v, old_cap) # reset
             break 
 
-    
-    print(f"{i} {flow}")
+    print(f"{nbr_removed} {flow}")
     return
 
 
-def preflow_push(graph: Graph, s, t):
-    # for each node u do e_f(u) <- 0
-    excess_preflows = { node: 0 for node in graph.nodes() }
-    heights = { s: len(graph.graph) } # h(s) <- n
+def ford_fulkerson(graph: Graph, source: str, sink: str):
+    max_flow = 0
 
-    #for each node u != s do h(u) <- 0
-    for node in graph.nodes():
-        if node == s:
+    while True:
+        # Find path
+        parent = bfs(graph, source, sink)
+        if parent is None: 
+            break
+
+        # Go back through path to find min capacity which is the flow
+        path_flow = float("inf")
+        curr = sink
+        while curr != source:
+            prev = parent[curr]  #type: ignore
+            res_cap = graph.capacity(prev, curr) - graph.flow(prev, curr)
+            path_flow = min(path_flow, res_cap)
+            curr = prev
+
+        if path_flow == 0:
             continue
-        heights[node] = 0
 
-    #for each edge (s, v) do
-    for v in graph.neighbors(s):
-        cap = graph.capacity(s, v)      # c(s, v)
-        graph.set_edge_flow(s, v, cap)  # f(s, v) <- c(s, v)
-        excess_preflows[v] = cap        # e_f(v) = c(s, v)
-        excess_preflows[s] -=           # e_f(s) <- e_f(s) - c(s, v) 
+        # update flows
+        curr = sink
+        while curr != source:
+            prev = parent[curr] #type: ignore 
+            graph.update_edge_flow(prev, curr, int(path_flow))
+            curr = prev
 
-    # for each edge (u, v) such that u != s do f(u, v) <- 0
-
-    # while there is a node v != t with e_f(v) > 0 do
-        #if there is a node w such that h(v) > h(w) and (v, w) in G_f then        
-            # push(h, f, v, w)
-        # else
-            # relabel(h, f, v)
-
-    # return f
-    return 21
+        max_flow += path_flow
+    
+    return max_flow
 
 
-def push(f, h, v, w):
+def bfs(graph:Graph, source, sink):
 
-    return
+    parent = {node: None for node in graph.nodes()}
+    parent[source] = source 
 
+    queue = deque([source])
+    while len(queue) > 0:
 
-def relabel(f, h, v):
+        curr = queue.popleft()
 
-    return
+        for neighbor in graph.neighbors(curr):
+            residual_cap = graph.capacity(curr, neighbor) - graph.flow(curr, neighbor)
+
+            if parent[neighbor] is None and residual_cap > 0:
+                parent[neighbor] = curr
+                if neighbor == sink:
+                    return parent
+                queue.append(neighbor)
+
+    return None
 
 
 def parse(input: TextIO):
@@ -154,13 +193,9 @@ def parse(input: TextIO):
         if not graph.contains(v):
             graph.add_node(v)
         graph.add_edge(u, v)
-        graph.set_edge_capacity(u, v, capacity)
+        graph.set_edge_capacity(u, v, int(capacity))
 
-    print(graph)
-
-    to_remove = []
-    for line in lines[1 + m_edges:]:
-        to_remove.append(edges[int(line)]) 
+    to_remove = [edges[int(line)] for line in lines[1 + m_edges:]]
 
     return graph, int(c_min_capacity), to_remove
 

@@ -3,8 +3,8 @@ import heapq
 from typing import TextIO, Tuple
 
 def main():
-    #input = sys.stdin
-    input = open("data/secret/4huge.in")
+    input = sys.stdin
+    #input = open("data/secret/4huge.in")
 
     graph = make_graph(input)
     res = jarnik(graph, "1")

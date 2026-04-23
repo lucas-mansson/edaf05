@@ -82,8 +82,8 @@ def solve(chars, costs, query, delta):
     return "".join(res1)[::-1], "".join(res2)[::-1]
 
 
-def parse(input_file: TextIO):
-    lines = input_file.read().splitlines()
+def parse(input: TextIO):
+    lines = input.read().splitlines()
     
     chars = lines[0].split()
     chars = {char: idx for idx, char in enumerate(chars)}
