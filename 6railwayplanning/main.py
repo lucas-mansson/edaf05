@@ -82,36 +82,33 @@ class Graph:
 
 
 def main():
-    #input = sys.stdin
-    input = open("data/secret/3large.in")
+    input = sys.stdin
+    #input = open("data/secret/3large.in")
     #input = open("data/secret/2med.in")
     
     # Build the graph. 
     graph, min_capacity, edges_to_remove = parse(input)
     
     #Use Ford-Fulkerson to find the maximum flow. 
-    source = "0"
-    sink = str(graph.nbr_nodes() - 1)
-
-    flow = float("inf") #ford_fulkerson(graph, source, sink)
+    flow = float("inf")
 
     l = 0
     r = len(edges_to_remove)
     while l < r:
-        i = l + (r - l + 1) // 2
+        mid = l + (r - l + 1) // 2
 
         res_graph = copy.deepcopy(graph)
-        for (u, v) in edges_to_remove[:i]:
+        for (u, v) in edges_to_remove[:mid]:
             res_graph.remove_edge(u, v)
 
         res_graph.reset_flows()
-        new_flow = ford_fulkerson(res_graph, source, sink)
+        new_flow = ford_fulkerson(res_graph, source="0", sink=str(graph.nbr_nodes() - 1))
 
         if new_flow >= min_capacity:
             flow = new_flow
-            l = i
+            l = mid
         else: 
-            r = i - 1
+            r = mid - 1
 
     print(f"{l} {flow}")
     return
