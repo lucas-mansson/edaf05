@@ -53,9 +53,9 @@ def closest(px: list[Point], py: list[Point], n: int) -> float:
         return delta
 
     # Check each ponts in S to see if any nearby points is closer than delta
-    # "One point p in S is checked at a time. The distances from p to each of the 6 points 
+    # One point p in S is checked at a time. The distances from p to each of the 6 points 
     # on the other side in S (according to Y-coordinates) are checked to see if it has less
-    # than the shortest distance found so far"
+    # than the shortest distance found so far
     min_s_dist = delta
     for i, p in enumerate(s):
         for j in range(i+1, min(i+6, len(s))):

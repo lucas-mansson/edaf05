@@ -1,4 +1,5 @@
 import sys
+import copy
 from collections import deque
 from typing import TextIO
 
@@ -68,7 +69,7 @@ class Graph:
         return self.graph[u]
 
     def nodes(self):
-        return [node for node, _ in self.graph.items()]
+        return self.graph.keys()
 
     def nbr_nodes(self):
         return len(self.graph)
@@ -81,7 +82,8 @@ class Graph:
 
 
 def main():
-    input = sys.stdin
+    #input = sys.stdin
+    input = open("data/secret/3large.in")
     #input = open("data/secret/2med.in")
     
     # Build the graph. 
@@ -91,32 +93,27 @@ def main():
     source = "0"
     sink = str(graph.nbr_nodes() - 1)
 
-    flow = ford_fulkerson(graph, source, sink)
+    flow = float("inf") #ford_fulkerson(graph, source, sink)
 
-    nbr_removed = 0
-    for u, v in edges_to_remove:
-        if graph.flow(u, v) == 0: # Removing edges with flow 0 makes no difference so we can skip it
-            nbr_removed += 1
-            continue
+    l = 0
+    r = len(edges_to_remove)
+    while l < r:
+        i = l + (r - l + 1) // 2
 
-        old_cap = graph.capacity(u, v)
+        res_graph = copy.deepcopy(graph)
+        for (u, v) in edges_to_remove[:i]:
+            res_graph.remove_edge(u, v)
 
-        #Then, remove one route/edge by updating its capacity to 0.
-        graph.remove_edge(u, v)
+        res_graph.reset_flows()
+        new_flow = ford_fulkerson(res_graph, source, sink)
 
-        #Find maximum flow for that graph. 
-        graph.reset_flows()
-        new_flow = ford_fulkerson(graph, source, sink)
-
-        # If it is less than C, then we return the previous
         if new_flow >= min_capacity:
             flow = new_flow
-            nbr_removed += 1
+            l = i
         else: 
-            graph.set_edge_capacity(u, v, old_cap) # reset
-            break 
+            r = i - 1
 
-    print(f"{nbr_removed} {flow}")
+    print(f"{l} {flow}")
     return
 
 
